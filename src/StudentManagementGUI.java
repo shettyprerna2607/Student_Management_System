@@ -1,7 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 
 // Student class to store student details
@@ -10,14 +9,12 @@ class Student {
     int rollno;
     float marks;
 
-    // Constructor to initialize student
     public Student(String name, int rollno, float marks) {
         this.name = name;
         this.rollno = rollno;
         this.marks = marks;
     }
 
-    // To display student info as string
     public String toString() {
         return "Name: " + name + ", Roll No: " + rollno + ", Marks: " + marks;
     }
@@ -28,78 +25,109 @@ public class StudentManagementGUI {
     private JFrame frame;
     private JTextField nameField, rollField, marksField, searchField;
     private DefaultTableModel tableModel;
-    private ArrayList<Student> studentList = new ArrayList<>(); // To store all students
+    private ArrayList<Student> studentList = new ArrayList<>();
 
-    // Constructor to create GUI
     public StudentManagementGUI() {
-        frame = new JFrame("Student Management System"); // Create window
+        frame = new JFrame("Student Management System");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 500);
         frame.setLayout(new BorderLayout());
 
-        // 1. Top Panel: for adding new student
-        JPanel topPanel = new JPanel(new GridLayout(2, 4, 10, 10));
-        nameField = new JTextField();
-        rollField = new JTextField();
-        marksField = new JTextField();
+        // 1. Top Panel: for adding new student with GridBagLayout
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 10, 5, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        nameField = new JTextField(10);
+        rollField = new JTextField(10);
+        marksField = new JTextField(10);
         JButton addButton = new JButton("Add Student");
 
-        // Add input fields and button to top panel
-        topPanel.add(new JLabel("Name:"));
-        topPanel.add(nameField);
-        topPanel.add(new JLabel("Roll No:"));
-        topPanel.add(rollField);
-        topPanel.add(new JLabel("Marks:"));
-        topPanel.add(marksField);
-        topPanel.add(addButton);
+        // Row 0 - Name Label and Field
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        topPanel.add(new JLabel("Name:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.3;
+        topPanel.add(nameField, gbc);
+
+        // Roll No Label and Field
+        gbc.gridx = 2;
+        gbc.weightx = 0;
+        topPanel.add(new JLabel("Roll No:"), gbc);
+
+        gbc.gridx = 3;
+        gbc.weightx = 0.3;
+        topPanel.add(rollField, gbc);
+
+        // Row 1 - Marks Label and Field
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        topPanel.add(new JLabel("Marks:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.3;
+        topPanel.add(marksField, gbc);
+
+        // Add Button spanning two columns, aligned left
+        gbc.gridx = 2;
+        gbc.gridwidth = 2;
+        gbc.weightx = 0;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        topPanel.add(addButton, gbc);
 
         // 2. Center Panel: table to show students
         String[] columns = {"Name", "Roll No", "Marks"};
-        tableModel = new DefaultTableModel(columns, 0); // Table with 3 columns
-        JTable studentTable = new JTable(tableModel);   // Create table
-        JScrollPane scrollPane = new JScrollPane(studentTable); // Add scroll bar
+        tableModel = new DefaultTableModel(columns, 0);
+        JTable studentTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(studentTable);
 
-        // 3. Bottom Panel: for searching, deleting, and showing topper
-        JPanel bottomPanel = new JPanel(new FlowLayout());
-
-        searchField = new JTextField(10); // For roll number input
+        // 3. Bottom Panel: for searching, deleting, and showing topper (FlowLayout with spacing)
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        searchField = new JTextField(10);
         JButton searchButton = new JButton("Search");
         JButton deleteButton = new JButton("Delete");
         JButton topperButton = new JButton("Show Topper");
 
-        // Add components to bottom panel
         bottomPanel.add(new JLabel("Roll No:"));
         bottomPanel.add(searchField);
         bottomPanel.add(searchButton);
         bottomPanel.add(deleteButton);
         bottomPanel.add(topperButton);
 
-        // Add all panels to main frame
+        // Add panels to frame
         frame.add(topPanel, BorderLayout.NORTH);
         frame.add(scrollPane, BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);
 
         // Button actions
-        addButton.addActionListener(e -> addStudent());     // Add student
-        searchButton.addActionListener(e -> searchStudent()); // Search student
-        deleteButton.addActionListener(e -> deleteStudent()); // Delete student
-        topperButton.addActionListener(e -> showTopper());     // Show topper
+        addButton.addActionListener(e -> addStudent());
+        searchButton.addActionListener(e -> searchStudent());
+        deleteButton.addActionListener(e -> deleteStudent());
+        topperButton.addActionListener(e -> showTopper());
 
-        frame.setVisible(true); // Show window
+        frame.setVisible(true);
     }
 
-    // Function to add a new student
     private void addStudent() {
         try {
-            String name = nameField.getText();
-            int roll = Integer.parseInt(rollField.getText());
-            float marks = Float.parseFloat(marksField.getText());
+            String name = nameField.getText().trim();
+            int roll = Integer.parseInt(rollField.getText().trim());
+            float marks = Float.parseFloat(marksField.getText().trim());
+
+            if(name.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Name cannot be empty.");
+                return;
+            }
 
             Student s = new Student(name, roll, marks);
-            studentList.add(s); // Add to list
-            tableModel.addRow(new Object[]{name, roll, marks}); // Add to table
+            studentList.add(s);
+            tableModel.addRow(new Object[]{name, roll, marks});
 
-            // Clear input fields after adding
             nameField.setText("");
             rollField.setText("");
             marksField.setText("");
@@ -108,9 +136,8 @@ public class StudentManagementGUI {
         }
     }
 
-    // Function to search a student by roll number
     private void searchStudent() {
-        String input = searchField.getText();
+        String input = searchField.getText().trim();
         try {
             int roll = Integer.parseInt(input);
             for (Student s : studentList) {
@@ -125,15 +152,14 @@ public class StudentManagementGUI {
         }
     }
 
-    // Function to delete a student by roll number
     private void deleteStudent() {
-        String input = searchField.getText();
+        String input = searchField.getText().trim();
         try {
             int roll = Integer.parseInt(input);
             for (int i = 0; i < studentList.size(); i++) {
                 if (studentList.get(i).rollno == roll) {
-                    studentList.remove(i);       // Remove from list
-                    tableModel.removeRow(i);     // Remove from table
+                    studentList.remove(i);
+                    tableModel.removeRow(i);
                     JOptionPane.showMessageDialog(frame, "Student deleted.");
                     return;
                 }
@@ -144,14 +170,13 @@ public class StudentManagementGUI {
         }
     }
 
-    // Function to show the student with the highest marks
     private void showTopper() {
         if (studentList.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "No students to evaluate.");
             return;
         }
 
-        Student topper = studentList.get(0); // Start with first student
+        Student topper = studentList.get(0);
         for (Student s : studentList) {
             if (s.marks > topper.marks) {
                 topper = s;
@@ -160,7 +185,6 @@ public class StudentManagementGUI {
         JOptionPane.showMessageDialog(frame, "Topper: " + topper);
     }
 
-    // Main method to start the app
     public static void main(String[] args) {
         SwingUtilities.invokeLater(StudentManagementGUI::new);
     }
